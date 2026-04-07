@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>21. Geometry Constructing Exercises &#8212; Introduction to PostGIS</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/extra.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="22. More Spatial Joins" href="joins_advanced.html" />
+    <link rel="prev" title="20. Geometry Constructing Functions" href="geometry_returning.html" />
+    
+
+  </head><body>
+    <div class="header">
+        <div class="wrap">
+            <div class="links">
+                <p>Edit this page on<br>
+                <a href="https://github.com/postgis/postgis-workshops/edit/master/postgis-intro/sources/en/geometry_returning_exercises.rst" target="_blank">GitHub</a> or
+                <a href="https://gitlab.com/postgis/postgis-workshops/blob/master/postgis-intro/sources/en/geometry_returning_exercises.rst" target="_blank">GitLab</a>.<br>
+                Help 
+                <a href="https://weblate.osgeo.org/projects/postgis-workshop/geometry_returning_exercises/" target="_blank">translate</a> this page.</p>
+            </div>
+            <h1 class="logo"><a href="https://postgis.net"><img src="_static/img/postgis-logo.png" alt="PostGIS" /></a></h1>
+
+				      
+                      <!-- <div style="float:right;font-size:small">
+
+                      <b>Translate this Page with Weblate</b>&nbsp;&nbsp;<a href="https://weblate.osgeo.org/projects/postgis-workshop/geometry_returning_exercises/" target="_blank" alt="Translate this page"><img src="https://weblate.osgeo.org/widgets/postgis-workshop/-/287x66-grey.png" style="vertical-align:middle;height:75px" alt="Translate this page" /></a>
+
+                      &nbsp;&nbsp;<b>Edit This Page On</b> 
+
+                      <a class="btn-scm gitlab" href="https://gitlab.com/postgis/postgis-workshops/blob/master/postgis-intro/sources/en/geometry_returning_exercises.rst" target="_blank">Gitlab</a> 
+
+                      <a class="btn-scm github" href="https://github.com/postgis/postgis-workshops/edit/master/postgis-intro/sources/en/geometry_returning_exercises.rst" target="_blank">Github</a>
+                      </div>
+                      -->
+			      
+            <h2 class="docstitle"><a href="index.html">Introduction to PostGIS</a> </h2>
+        </div>
+    </div>
+
+  
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="geometry-constructing-exercises">
+<span id="geometry-returning-exercises"></span><h1><span class="section-number">21. </span>Geometry Constructing Exercises<a class="headerlink" href="#geometry-constructing-exercises" title="Permalink to this headline">¶</a></h1>
+<p>Here’s a reminder of some of the functions we have seen.  Hint: they should be useful for the exercises!</p>
+<ul class="simple">
+<li><p><strong class="command">sum(expression)</strong> aggregate to return a sum for a set of records</p></li>
+<li><p><strong class="command">ST_Area(geometry)</strong> returns the area of the geometry</p></li>
+<li><p><strong class="command">ST_Centroid(geometry)</strong> returns the <code class="docutils literal notranslate"><span class="pre">geometry</span></code> centroid</p></li>
+<li><p><strong class="command">ST_Transform(geometry, srid)</strong> converts <code class="docutils literal notranslate"><span class="pre">geometries</span></code> into different spatial reference systems</p></li>
+<li><p><strong class="command">ST_Buffer(geometry, radius)</strong> returns an expanded <code class="docutils literal notranslate"><span class="pre">geometry</span></code> shape</p></li>
+<li><p><strong class="command">ST_Contains(geometry1, geometry2)</strong> returns true if geometry1 contains geometry2</p></li>
+<li><p><strong class="command">ST_Union(geometry[])</strong> returns the aggregate union of all geometries in the group</p></li>
+<li><p><strong class="command">ST_GeometryType(geometry)</strong> returns the type of the geometry</p></li>
+<li><p><strong class="command">ST_NumGeometries(geometry)</strong> returns the number of geometries in a collection or 1 for simple geometries</p></li>
+<li><p><strong class="command">ST_Intersection(geometry, geometry)</strong> returns the area that the two input geometries share in common</p></li>
+</ul>
+<p>Remember the tables we have available:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_census_blocks</span></code></p>
+<ul>
+<li><p>name, popn_total, boroname, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_streets</span></code></p>
+<ul>
+<li><p>name, type, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_subway_stations</span></code></p>
+<ul>
+<li><p>name, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_neighborhoods</span></code></p>
+<ul>
+<li><p>name, boroname, geom</p></li>
+</ul>
+</li>
+</ul>
+<div class="section" id="exercises">
+<h2><span class="section-number">21.1. </span>Exercises<a class="headerlink" href="#exercises" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p><strong>How many census blocks don’t contain their own centroid?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">Count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+  <span class="k">FROM</span> <span class="n">nyc_census_blocks</span>
+  <span class="k">WHERE</span> <span class="k">NOT</span>
+    <span class="n">ST_Contains</span><span class="p">(</span>
+      <span class="n">geom</span><span class="p">,</span>
+      <span class="n">ST_Centroid</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+    <span class="p">);</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">481</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Union all the census blocks into a single output. What kind of geometry is it? How many parts does it have?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">nyc_census_blocks_merge</span> <span class="k">AS</span>
+  <span class="k">SELECT</span> <span class="n">ST_Union</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span> <span class="k">AS</span> <span class="n">geom</span>
+  <span class="k">FROM</span> <span class="n">nyc_census_blocks</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="n">ST_GeometryType</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+  <span class="k">FROM</span> <span class="n">nyc_census_blocks_merge</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ST_MultiPolygon</span>
+</pre></div>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">ST_NumGeometries</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+  <span class="k">FROM</span> <span class="n">nyc_census_blocks_merge</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">63</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>What is the area of a one unit buffer around the origin? How different is it from what you would expect? Why?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">ST_Area</span><span class="p">(</span><span class="n">ST_Buffer</span><span class="p">(</span><span class="s1">&#39;POINT(0 0)&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">3.121445152258052</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A unit circle (circle with radius of one) should have an area of pi, 3.1415926… The difference is due to the linear stroking of the edges of the buffer. The buffer has a finite number of edges. Increasing the number of edges in the buffer will get the value closer to pi, but it will always be smaller due to the linearization.</p>
+</div>
+</li>
+<li><p><strong>The Brooklyn neighborhoods of ‘Park Slope’ and ‘Carroll Gardens’ are going to war! Construct a polygon delineating a 100 meter wide DMZ on the border between the neighborhoods. What is the area of the DMZ?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">brooklyn_dmz</span> <span class="k">AS</span>
+  <span class="k">SELECT</span>
+    <span class="n">ST_Intersection</span><span class="p">(</span>
+      <span class="n">ST_Buffer</span><span class="p">(</span><span class="n">ps</span><span class="p">.</span><span class="n">geom</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+      <span class="n">ST_Buffer</span><span class="p">(</span><span class="n">cg</span><span class="p">.</span><span class="n">geom</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>
+    <span class="k">AS</span> <span class="n">geom</span>
+  <span class="k">FROM</span>
+    <span class="n">nyc_neighborhoods</span> <span class="n">ps</span><span class="p">,</span>
+    <span class="n">nyc_neighborhoods</span> <span class="n">cg</span>
+  <span class="k">WHERE</span> <span class="n">ps</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Park Slope&#39;</span>
+  <span class="k">AND</span> <span class="n">cg</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Carroll Gardens&#39;</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="n">ST_Area</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">brooklyn_dmz</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is easy to buffer both the neighborhoods of interest, but to get the intersection requires a self-join of the table, creating one relation (<code class="docutils literal notranslate"><span class="pre">ps</span></code>) with just the “Park Slope” record and another (<code class="docutils literal notranslate"><span class="pre">cg</span></code>) with just the “Carroll Gardens” record. Note that the area of the intersection is in square meters because we are still working in UTM 18 (EPSG:26918).</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">180990.964207547</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+            <li class="right" style="margin-right: 10px">
+              <a href="joins_advanced.html" title="22. More Spatial Joins"
+                 accesskey="N">next</a></li>
+            <li class="right" >
+              <a href="geometry_returning.html" title="20. Geometry Constructing Functions"
+                 accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Introduction to PostGIS</a> &#187;</li>
+        <li><a href="#"><span class="section-number">21. </span>Geometry Constructing Exercises</a></li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2012-2023, Paul Ramsey | Mark Leslie | PostGIS contributors.
+    <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative Commons License" style="border-width:0;vertical-align:text-bottom;" src="_static/img/cc-by-sa.png" /></a>
+    </div>
+  </body>
+</html>

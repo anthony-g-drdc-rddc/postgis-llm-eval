@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>17. Projection Exercises &#8212; Introduction to PostGIS</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/extra.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="18. Geography" href="geography.html" />
+    <link rel="prev" title="16. Projecting Data" href="projection.html" />
+    
+
+  </head><body>
+    <div class="header">
+        <div class="wrap">
+            <div class="links">
+                <p>Edit this page on<br>
+                <a href="https://github.com/postgis/postgis-workshops/edit/master/postgis-intro/sources/en/projection_exercises.rst" target="_blank">GitHub</a> or
+                <a href="https://gitlab.com/postgis/postgis-workshops/blob/master/postgis-intro/sources/en/projection_exercises.rst" target="_blank">GitLab</a>.<br>
+                Help 
+                <a href="https://weblate.osgeo.org/projects/postgis-workshop/projection_exercises/" target="_blank">translate</a> this page.</p>
+            </div>
+            <h1 class="logo"><a href="https://postgis.net"><img src="_static/img/postgis-logo.png" alt="PostGIS" /></a></h1>
+
+				      
+                      <!-- <div style="float:right;font-size:small">
+
+                      <b>Translate this Page with Weblate</b>&nbsp;&nbsp;<a href="https://weblate.osgeo.org/projects/postgis-workshop/projection_exercises/" target="_blank" alt="Translate this page"><img src="https://weblate.osgeo.org/widgets/postgis-workshop/-/287x66-grey.png" style="vertical-align:middle;height:75px" alt="Translate this page" /></a>
+
+                      &nbsp;&nbsp;<b>Edit This Page On</b> 
+
+                      <a class="btn-scm gitlab" href="https://gitlab.com/postgis/postgis-workshops/blob/master/postgis-intro/sources/en/projection_exercises.rst" target="_blank">Gitlab</a> 
+
+                      <a class="btn-scm github" href="https://github.com/postgis/postgis-workshops/edit/master/postgis-intro/sources/en/projection_exercises.rst" target="_blank">Github</a>
+                      </div>
+                      -->
+			      
+            <h2 class="docstitle"><a href="index.html">Introduction to PostGIS</a> </h2>
+        </div>
+    </div>
+
+  
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="projection-exercises">
+<span id="id1"></span><h1><span class="section-number">17. </span>Projection Exercises<a class="headerlink" href="#projection-exercises" title="Permalink to this headline">¶</a></h1>
+<p>Here’s a reminder of some of the functions we have seen.  Hint: they should be useful for the exercises!</p>
+<ul class="simple">
+<li><p><strong class="command">sum(expression)</strong> aggregate to return a sum for a set of records</p></li>
+<li><p><strong class="command">ST_Length(linestring)</strong> returns the length of the linestring</p></li>
+<li><p><strong class="command">ST_SRID(geometry)</strong> returns the SRID of the geometry</p></li>
+<li><p><strong class="command">ST_Transform(geometry, srid)</strong> converts geometries into different spatial reference systems</p></li>
+<li><p><strong class="command">ST_GeomFromText(text)</strong> returns <code class="docutils literal notranslate"><span class="pre">geometry</span></code></p></li>
+<li><p><strong class="command">ST_AsText(geometry)</strong> returns WKT <code class="docutils literal notranslate"><span class="pre">text</span></code></p></li>
+<li><p><strong class="command">ST_AsGML(geometry)</strong> returns GML <code class="docutils literal notranslate"><span class="pre">text</span></code></p></li>
+</ul>
+<p>Remember the online resources that are available to you:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://epsg.io/">https://epsg.io/</a></p></li>
+</ul>
+<p>Also remember the tables we have available:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_census_blocks</span></code></p>
+<ul>
+<li><p>name, popn_total, boroname, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_streets</span></code></p>
+<ul>
+<li><p>name, type, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_subway_stations</span></code></p>
+<ul>
+<li><p>name, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_neighborhoods</span></code></p>
+<ul>
+<li><p>name, boroname, geom</p></li>
+</ul>
+</li>
+</ul>
+<div class="section" id="exercises">
+<h2><span class="section-number">17.1. </span>Exercises<a class="headerlink" href="#exercises" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p><strong>What is the length of all streets in New York, as measured in UTM 18?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">Sum</span><span class="p">(</span><span class="n">ST_Length</span><span class="p">(</span><span class="n">geom</span><span class="p">))</span>
+  <span class="k">FROM</span> <span class="n">nyc_streets</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">10418904.7172</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>What is the WKT definition of SRID 2831?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">srtext</span> <span class="k">FROM</span> <span class="n">spatial_ref_sys</span>
+<span class="k">WHERE</span> <span class="n">SRID</span> <span class="o">=</span> <span class="mi">2831</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Or, via <a class="reference external" href="https://epsg.io/2831">https://epsg.io/2831</a></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PROJCS</span><span class="p">[</span><span class="s2">&quot;NAD83(HARN) / New York Long Island&quot;</span><span class="p">,</span>
+  <span class="n">GEOGCS</span><span class="p">[</span><span class="s2">&quot;NAD83(HARN)&quot;</span><span class="p">,</span>
+    <span class="n">DATUM</span><span class="p">[</span><span class="s2">&quot;NAD83 (High Accuracy Regional Network)&quot;</span><span class="p">,</span>
+      <span class="n">SPHEROID</span><span class="p">[</span><span class="s2">&quot;GRS 1980&quot;</span><span class="p">,</span> <span class="mf">6378137.0</span><span class="p">,</span> <span class="mf">298.257222101</span><span class="p">,</span>
+        <span class="n">AUTHORITY</span><span class="p">[</span><span class="s2">&quot;EPSG&quot;</span><span class="p">,</span><span class="s2">&quot;7019&quot;</span><span class="p">]],</span>
+      <span class="n">TOWGS84</span><span class="p">[</span><span class="o">-</span><span class="mf">0.991</span><span class="p">,</span> <span class="mf">1.9072</span><span class="p">,</span> <span class="mf">0.5129</span><span class="p">,</span> <span class="mf">0.0257899075194932</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.009650098960270402</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.011659943232342112</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+      <span class="n">AUTHORITY</span><span class="p">[</span><span class="s2">&quot;EPSG&quot;</span><span class="p">,</span><span class="s2">&quot;6152&quot;</span><span class="p">]],</span>
+    <span class="n">PRIMEM</span><span class="p">[</span><span class="s2">&quot;Greenwich&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span>
+      <span class="n">AUTHORITY</span><span class="p">[</span><span class="s2">&quot;EPSG&quot;</span><span class="p">,</span><span class="s2">&quot;8901&quot;</span><span class="p">]],</span>
+    <span class="n">UNIT</span><span class="p">[</span><span class="s2">&quot;degree&quot;</span><span class="p">,</span> <span class="mf">0.017453292519943295</span><span class="p">],</span>
+    <span class="n">AXIS</span><span class="p">[</span><span class="s2">&quot;Geodetic longitude&quot;</span><span class="p">,</span> <span class="n">EAST</span><span class="p">],</span>
+    <span class="n">AXIS</span><span class="p">[</span><span class="s2">&quot;Geodetic latitude&quot;</span><span class="p">,</span> <span class="n">NORTH</span><span class="p">],</span>
+    <span class="n">AUTHORITY</span><span class="p">[</span><span class="s2">&quot;EPSG&quot;</span><span class="p">,</span><span class="s2">&quot;4152&quot;</span><span class="p">]],</span>
+  <span class="n">PROJECTION</span><span class="p">[</span><span class="s2">&quot;Lambert Conic Conformal (2SP)&quot;</span><span class="p">,</span>
+    <span class="n">AUTHORITY</span><span class="p">[</span><span class="s2">&quot;EPSG&quot;</span><span class="p">,</span><span class="s2">&quot;9802&quot;</span><span class="p">]],</span>
+  <span class="n">PARAMETER</span><span class="p">[</span><span class="s2">&quot;central_meridian&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">74.0</span><span class="p">],</span>
+  <span class="n">PARAMETER</span><span class="p">[</span><span class="s2">&quot;latitude_of_origin&quot;</span><span class="p">,</span> <span class="mf">40.166666666666664</span><span class="p">],</span>
+  <span class="n">PARAMETER</span><span class="p">[</span><span class="s2">&quot;standard_parallel_1&quot;</span><span class="p">,</span> <span class="mf">41.03333333333333</span><span class="p">],</span>
+  <span class="n">PARAMETER</span><span class="p">[</span><span class="s2">&quot;false_easting&quot;</span><span class="p">,</span> <span class="mf">300000.0</span><span class="p">],</span>
+  <span class="n">PARAMETER</span><span class="p">[</span><span class="s2">&quot;false_northing&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+  <span class="n">PARAMETER</span><span class="p">[</span><span class="s2">&quot;scale_factor&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+  <span class="n">PARAMETER</span><span class="p">[</span><span class="s2">&quot;standard_parallel_2&quot;</span><span class="p">,</span> <span class="mf">40.666666666666664</span><span class="p">],</span>
+  <span class="n">UNIT</span><span class="p">[</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+  <span class="n">AXIS</span><span class="p">[</span><span class="s2">&quot;Easting&quot;</span><span class="p">,</span> <span class="n">EAST</span><span class="p">],</span>
+  <span class="n">AXIS</span><span class="p">[</span><span class="s2">&quot;Northing&quot;</span><span class="p">,</span> <span class="n">NORTH</span><span class="p">],</span>
+  <span class="n">AUTHORITY</span><span class="p">[</span><span class="s2">&quot;EPSG&quot;</span><span class="p">,</span><span class="s2">&quot;2831&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>What is the length of all streets in New York, as measured in SRID 2831?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">Sum</span><span class="p">(</span><span class="n">ST_Length</span><span class="p">(</span><span class="n">ST_Transform</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="mi">2831</span><span class="p">)))</span>
+  <span class="k">FROM</span> <span class="n">nyc_streets</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">10421993.706374</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The difference between the UTM 18 and the State Plane Long Island measurements is (10421993 - 10418904)/10418904, or 0.02%. Calculated on the spheroid using <a class="reference internal" href="geography.html#geography"><span class="std std-ref">Geography</span></a> the total street length is 10421999, which is closer to the State Plane value. This is not surprising, since the State Plane Long Island projection is precisely calibrated for a very small area (New York City) while UTM 18 has to provide reasonable results for a large regional area.</p>
+</div>
+</li>
+<li><p><strong>How many streets cross the 74th meridian?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">Count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span> <span class="n">nyc_streets</span>
+<span class="k">WHERE</span> <span class="n">ST_Intersects</span><span class="p">(</span>
+  <span class="n">ST_Transform</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="mi">4326</span><span class="p">),</span>
+  <span class="s1">&#39;SRID=4326;LINESTRING(-74 20, -74 60)&#39;</span>
+  <span class="p">);</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">223</span>
+</pre></div>
+</div>
+<p>The “74th meridian” is a fancy way of saying “a vertical line in geographics where the X value is -74”. We can construct such a line and then compare it to the streets, projected into geographics also. Projecting the line into UTM and comparing it there will return a slightly different answer. To get the same answer, you need to “segmentize” it, so it has more points, before transforming.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">Count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span> <span class="n">nyc_streets</span>
+<span class="k">WHERE</span> <span class="n">ST_Intersects</span><span class="p">(</span>
+  <span class="n">geom</span><span class="p">,</span>
+  <span class="n">ST_Transform</span><span class="p">(</span><span class="n">ST_Segmentize</span><span class="p">(</span><span class="s1">&#39;SRID=4326;LINESTRING(-74 20, -74 60)&#39;</span><span class="p">::</span><span class="n">geometry</span><span class="p">,</span><span class="mi">0</span><span class="p">.</span><span class="mi">001</span><span class="p">),</span> <span class="mi">26918</span><span class="p">)</span>
+  <span class="p">);</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+            <li class="right" style="margin-right: 10px">
+              <a href="geography.html" title="18. Geography"
+                 accesskey="N">next</a></li>
+            <li class="right" >
+              <a href="projection.html" title="16. Projecting Data"
+                 accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Introduction to PostGIS</a> &#187;</li>
+        <li><a href="#"><span class="section-number">17. </span>Projection Exercises</a></li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2012-2023, Paul Ramsey | Mark Leslie | PostGIS contributors.
+    <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative Commons License" style="border-width:0;vertical-align:text-bottom;" src="_static/img/cc-by-sa.png" /></a>
+    </div>
+  </body>
+</html>

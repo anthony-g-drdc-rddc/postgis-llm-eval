@@ -1,0 +1,192 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>12. Spatial Relationships Exercises &#8212; Introduction to PostGIS</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/extra.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="13. Spatial Joins" href="joins.html" />
+    <link rel="prev" title="11. Spatial Relationships" href="spatial_relationships.html" />
+    
+
+  </head><body>
+    <div class="header">
+        <div class="wrap">
+            <div class="links">
+                <p>Edit this page on<br>
+                <a href="https://github.com/postgis/postgis-workshops/edit/master/postgis-intro/sources/en/spatial_relationships_exercises.rst" target="_blank">GitHub</a> or
+                <a href="https://gitlab.com/postgis/postgis-workshops/blob/master/postgis-intro/sources/en/spatial_relationships_exercises.rst" target="_blank">GitLab</a>.<br>
+                Help 
+                <a href="https://weblate.osgeo.org/projects/postgis-workshop/spatial_relationships_exercises/" target="_blank">translate</a> this page.</p>
+            </div>
+            <h1 class="logo"><a href="https://postgis.net"><img src="_static/img/postgis-logo.png" alt="PostGIS" /></a></h1>
+
+				      
+                      <!-- <div style="float:right;font-size:small">
+
+                      <b>Translate this Page with Weblate</b>&nbsp;&nbsp;<a href="https://weblate.osgeo.org/projects/postgis-workshop/spatial_relationships_exercises/" target="_blank" alt="Translate this page"><img src="https://weblate.osgeo.org/widgets/postgis-workshop/-/287x66-grey.png" style="vertical-align:middle;height:75px" alt="Translate this page" /></a>
+
+                      &nbsp;&nbsp;<b>Edit This Page On</b> 
+
+                      <a class="btn-scm gitlab" href="https://gitlab.com/postgis/postgis-workshops/blob/master/postgis-intro/sources/en/spatial_relationships_exercises.rst" target="_blank">Gitlab</a> 
+
+                      <a class="btn-scm github" href="https://github.com/postgis/postgis-workshops/edit/master/postgis-intro/sources/en/spatial_relationships_exercises.rst" target="_blank">Github</a>
+                      </div>
+                      -->
+			      
+            <h2 class="docstitle"><a href="index.html">Introduction to PostGIS</a> </h2>
+        </div>
+    </div>
+
+  
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="spatial-relationships-exercises">
+<span id="id1"></span><h1><span class="section-number">12. </span>Spatial Relationships Exercises<a class="headerlink" href="#spatial-relationships-exercises" title="Permalink to this headline">¶</a></h1>
+<p>Here’s a reminder of the functions we saw in the last section. They should be useful for the exercises!</p>
+<ul class="simple">
+<li><p><strong class="command">sum(expression)</strong> aggregate to return a sum for a set of records</p></li>
+<li><p><strong class="command">count(expression)</strong> aggregate to return the size of a set of records</p></li>
+<li><p><strong class="command">ST_Contains(geometry A, geometry B)</strong> returns true if geometry A contains geometry B</p></li>
+<li><p><strong class="command">ST_Crosses(geometry A, geometry B)</strong> returns true if geometry A crosses geometry B</p></li>
+<li><p><strong class="command">ST_Disjoint(geometry A , geometry B)</strong> returns true if the geometries do not “spatially intersect”</p></li>
+<li><p><strong class="command">ST_Distance(geometry A, geometry B)</strong> returns the minimum distance between geometry A and geometry B</p></li>
+<li><p><strong class="command">ST_DWithin(geometry A, geometry B, radius)</strong> returns true if geometry A is radius distance or less from geometry B</p></li>
+<li><p><strong class="command">ST_Equals(geometry A, geometry B)</strong> returns true if geometry A is the same as geometry B</p></li>
+<li><p><strong class="command">ST_Intersects(geometry A, geometry B)</strong> returns true if geometry A intersects geometry B</p></li>
+<li><p><strong class="command">ST_Overlaps(geometry A, geometry B)</strong> returns true if geometry A and geometry B share space, but are not completely contained by each other.</p></li>
+<li><p><strong class="command">ST_Touches(geometry A, geometry B)</strong> returns true if the boundary of geometry A touches geometry B</p></li>
+<li><p><strong class="command">ST_Within(geometry A, geometry B)</strong> returns true if geometry A is within geometry B</p></li>
+</ul>
+<p>Also remember the tables we have available:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_census_blocks</span></code></p>
+<ul>
+<li><p>blkid, popn_total, boroname, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_streets</span></code></p>
+<ul>
+<li><p>name, type, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_subway_stations</span></code></p>
+<ul>
+<li><p>name, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_neighborhoods</span></code></p>
+<ul>
+<li><p>name, boroname, geom</p></li>
+</ul>
+</li>
+</ul>
+<div class="section" id="exercises">
+<h2><span class="section-number">12.1. </span>Exercises<a class="headerlink" href="#exercises" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p><strong>What is the geometry value for the street named ‘Atlantic Commons’?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">ST_AsText</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+  <span class="k">FROM</span> <span class="n">nyc_streets</span>
+  <span class="k">WHERE</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Atlantic Commons&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">MULTILINESTRING</span><span class="p">((</span><span class="mf">586781.701577724</span> <span class="mf">4504202.15314339</span><span class="p">,</span><span class="mf">586863.51964484</span> <span class="mf">4504215.9881701</span><span class="p">))</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>What neighborhood and borough is Atlantic Commons in?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">name</span><span class="p">,</span> <span class="n">boroname</span>
+<span class="k">FROM</span> <span class="n">nyc_neighborhoods</span>
+<span class="k">WHERE</span> <span class="n">ST_Intersects</span><span class="p">(</span>
+  <span class="n">geom</span><span class="p">,</span>
+  <span class="n">ST_GeomFromText</span><span class="p">(</span><span class="s1">&#39;LINESTRING(586782 4504202,586864 4504216)&#39;</span><span class="p">,</span> <span class="mi">26918</span><span class="p">)</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">name</span>    <span class="o">|</span> <span class="n">boroname</span>
+<span class="o">------------+----------</span>
+ <span class="n">Fort</span> <span class="n">Green</span> <span class="o">|</span> <span class="n">Brooklyn</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>“Hey, why did you change from a ‘MULTILINESTRING’ to a ‘LINESTRING’?” Spatially they describe the same shape, so going from a single-item multi-geometry to a singleton saves a few keystrokes.</p>
+<p>More importantly, we also rounded the coordinates to make them easier to read, which does actually change results: we couldn’t use the ST_Touches() predicate to find out which roads join Atlantic Commons, because the coordinates are not exactly the same anymore.</p>
+</div>
+</li>
+<li><p><strong>What streets does Atlantic Commons join with?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">name</span>
+<span class="k">FROM</span> <span class="n">nyc_streets</span>
+<span class="k">WHERE</span> <span class="n">ST_DWithin</span><span class="p">(</span>
+  <span class="n">geom</span><span class="p">,</span>
+  <span class="n">ST_GeomFromText</span><span class="p">(</span><span class="s1">&#39;LINESTRING(586782 4504202,586864 4504216)&#39;</span><span class="p">,</span> <span class="mi">26918</span><span class="p">),</span>
+  <span class="mi">0</span><span class="p">.</span><span class="mi">1</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>     <span class="n">name</span>
+<span class="o">------------------</span>
+ <span class="n">Cumberland</span> <span class="n">St</span>
+ <span class="n">Atlantic</span> <span class="n">Commons</span>
+</pre></div>
+</div>
+<img alt="_images/atlantic_commons.jpg" src="_images/atlantic_commons.jpg" />
+</li>
+<li><p><strong>Approximately how many people live on (within 50 meters of) Atlantic Commons?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">Sum</span><span class="p">(</span><span class="n">popn_total</span><span class="p">)</span>
+  <span class="k">FROM</span> <span class="n">nyc_census_blocks</span>
+  <span class="k">WHERE</span> <span class="n">ST_DWithin</span><span class="p">(</span>
+   <span class="n">geom</span><span class="p">,</span>
+   <span class="n">ST_GeomFromText</span><span class="p">(</span><span class="s1">&#39;LINESTRING(586782 4504202,586864 4504216)&#39;</span><span class="p">,</span> <span class="mi">26918</span><span class="p">),</span>
+   <span class="mi">50</span>
+  <span class="p">);</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1438</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+            <li class="right" style="margin-right: 10px">
+              <a href="joins.html" title="13. Spatial Joins"
+                 accesskey="N">next</a></li>
+            <li class="right" >
+              <a href="spatial_relationships.html" title="11. Spatial Relationships"
+                 accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Introduction to PostGIS</a> &#187;</li>
+        <li><a href="#"><span class="section-number">12. </span>Spatial Relationships Exercises</a></li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2012-2023, Paul Ramsey | Mark Leslie | PostGIS contributors.
+    <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative Commons License" style="border-width:0;vertical-align:text-bottom;" src="_static/img/cc-by-sa.png" /></a>
+    </div>
+  </body>
+</html>

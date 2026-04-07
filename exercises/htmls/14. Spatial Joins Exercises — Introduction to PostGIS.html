@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>14. Spatial Joins Exercises &#8212; Introduction to PostGIS</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/extra.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="15. Spatial Indexing" href="indexing.html" />
+    <link rel="prev" title="13. Spatial Joins" href="joins.html" />
+    
+
+  </head><body>
+    <div class="header">
+        <div class="wrap">
+            <div class="links">
+                <p>Edit this page on<br>
+                <a href="https://github.com/postgis/postgis-workshops/edit/master/postgis-intro/sources/en/joins_exercises.rst" target="_blank">GitHub</a> or
+                <a href="https://gitlab.com/postgis/postgis-workshops/blob/master/postgis-intro/sources/en/joins_exercises.rst" target="_blank">GitLab</a>.<br>
+                Help 
+                <a href="https://weblate.osgeo.org/projects/postgis-workshop/joins_exercises/" target="_blank">translate</a> this page.</p>
+            </div>
+            <h1 class="logo"><a href="https://postgis.net"><img src="_static/img/postgis-logo.png" alt="PostGIS" /></a></h1>
+
+				      
+                      <!-- <div style="float:right;font-size:small">
+
+                      <b>Translate this Page with Weblate</b>&nbsp;&nbsp;<a href="https://weblate.osgeo.org/projects/postgis-workshop/joins_exercises/" target="_blank" alt="Translate this page"><img src="https://weblate.osgeo.org/widgets/postgis-workshop/-/287x66-grey.png" style="vertical-align:middle;height:75px" alt="Translate this page" /></a>
+
+                      &nbsp;&nbsp;<b>Edit This Page On</b> 
+
+                      <a class="btn-scm gitlab" href="https://gitlab.com/postgis/postgis-workshops/blob/master/postgis-intro/sources/en/joins_exercises.rst" target="_blank">Gitlab</a> 
+
+                      <a class="btn-scm github" href="https://github.com/postgis/postgis-workshops/edit/master/postgis-intro/sources/en/joins_exercises.rst" target="_blank">Github</a>
+                      </div>
+                      -->
+			      
+            <h2 class="docstitle"><a href="index.html">Introduction to PostGIS</a> </h2>
+        </div>
+    </div>
+
+  
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="spatial-joins-exercises">
+<span id="joins-exercises"></span><h1><span class="section-number">14. </span>Spatial Joins Exercises<a class="headerlink" href="#spatial-joins-exercises" title="Permalink to this headline">¶</a></h1>
+<p>Here’s a reminder of some of the functions we have seen.  Hint: they should be useful for the exercises!</p>
+<ul class="simple">
+<li><p><strong class="command">sum(expression)</strong>: aggregate to return a sum for a set of records</p></li>
+<li><p><strong class="command">count(expression)</strong>: aggregate to return the size of a set of records</p></li>
+<li><p><strong class="command">ST_Area(geometry)</strong> returns the area of the polygons</p></li>
+<li><p><strong class="command">ST_AsText(geometry)</strong> returns WKT <code class="docutils literal notranslate"><span class="pre">text</span></code></p></li>
+<li><p><strong class="command">ST_Contains(geometry A, geometry B)</strong> returns the true if geometry A contains geometry B</p></li>
+<li><p><strong class="command">ST_Distance(geometry A, geometry B)</strong> returns the minimum distance between geometry A and geometry B</p></li>
+<li><p><strong class="command">ST_DWithin(geometry A, geometry B, radius)</strong> returns the true if geometry A is radius distance or less from geometry B</p></li>
+<li><p><strong class="command">ST_GeomFromText(text)</strong> returns <code class="docutils literal notranslate"><span class="pre">geometry</span></code></p></li>
+<li><p><strong class="command">ST_Intersects(geometry A, geometry B)</strong> returns the true if geometry A intersects geometry B</p></li>
+<li><p><strong class="command">ST_Length(linestring)</strong> returns the length of the linestring</p></li>
+<li><p><strong class="command">ST_Touches(geometry A, geometry B)</strong> returns the true if the boundary of geometry A touches geometry B</p></li>
+<li><p><strong class="command">ST_Within(geometry A, geometry B)</strong> returns the true if geometry A is within geometry B</p></li>
+</ul>
+<p>Also remember the tables we have available:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_census_blocks</span></code></p>
+<ul>
+<li><p>name, popn_total, boroname, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_streets</span></code></p>
+<ul>
+<li><p>name, type, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_subway_stations</span></code></p>
+<ul>
+<li><p>name, routes, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_neighborhoods</span></code></p>
+<ul>
+<li><p>name, boroname, geom</p></li>
+</ul>
+</li>
+</ul>
+<div class="section" id="exercises">
+<h2><span class="section-number">14.1. </span>Exercises<a class="headerlink" href="#exercises" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p><strong>What subway station is in ‘Little Italy’? What subway route is it on?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">s</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">routes</span>
+<span class="k">FROM</span> <span class="n">nyc_subway_stations</span> <span class="k">AS</span> <span class="n">s</span>
+<span class="k">JOIN</span> <span class="n">nyc_neighborhoods</span> <span class="k">AS</span> <span class="n">n</span>
+<span class="k">ON</span> <span class="n">ST_Contains</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">geom</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">geom</span><span class="p">)</span>
+<span class="k">WHERE</span> <span class="n">n</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Little Italy&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="n">name</span>    <span class="o">|</span> <span class="n">routes</span>
+<span class="o">-----------+--------</span>
+ <span class="n">Spring</span> <span class="n">St</span> <span class="o">|</span> <span class="mi">6</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>What are all the neighborhoods served by the 6-train?</strong> (Hint: The <code class="docutils literal notranslate"><span class="pre">routes</span></code> column in the <code class="docutils literal notranslate"><span class="pre">nyc_subway_stations</span></code> table has values like ‘B,D,6,V’ and ‘C,6’)</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">DISTINCT</span> <span class="n">n</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">n</span><span class="p">.</span><span class="n">boroname</span>
+<span class="k">FROM</span> <span class="n">nyc_subway_stations</span> <span class="k">AS</span> <span class="n">s</span>
+<span class="k">JOIN</span> <span class="n">nyc_neighborhoods</span> <span class="k">AS</span> <span class="n">n</span>
+<span class="k">ON</span> <span class="n">ST_Contains</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">geom</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">geom</span><span class="p">)</span>
+<span class="k">WHERE</span> <span class="n">strpos</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">routes</span><span class="p">,</span><span class="s1">&#39;6&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>        <span class="n">name</span>        <span class="o">|</span> <span class="n">boroname</span>
+<span class="o">--------------------+-----------</span>
+ <span class="n">Midtown</span>            <span class="o">|</span> <span class="n">Manhattan</span>
+ <span class="n">Hunts</span> <span class="n">Point</span>        <span class="o">|</span> <span class="n">The</span> <span class="n">Bronx</span>
+ <span class="n">Gramercy</span>           <span class="o">|</span> <span class="n">Manhattan</span>
+ <span class="n">Little</span> <span class="n">Italy</span>       <span class="o">|</span> <span class="n">Manhattan</span>
+ <span class="n">Financial</span> <span class="n">District</span> <span class="o">|</span> <span class="n">Manhattan</span>
+ <span class="n">South</span> <span class="n">Bronx</span>        <span class="o">|</span> <span class="n">The</span> <span class="n">Bronx</span>
+ <span class="n">Yorkville</span>          <span class="o">|</span> <span class="n">Manhattan</span>
+ <span class="n">Murray</span> <span class="n">Hill</span>        <span class="o">|</span> <span class="n">Manhattan</span>
+ <span class="n">Mott</span> <span class="n">Haven</span>         <span class="o">|</span> <span class="n">The</span> <span class="n">Bronx</span>
+ <span class="n">Upper</span> <span class="n">East</span> <span class="n">Side</span>    <span class="o">|</span> <span class="n">Manhattan</span>
+ <span class="n">Chinatown</span>          <span class="o">|</span> <span class="n">Manhattan</span>
+ <span class="n">East</span> <span class="n">Harlem</span>        <span class="o">|</span> <span class="n">Manhattan</span>
+ <span class="n">Greenwich</span> <span class="n">Village</span>  <span class="o">|</span> <span class="n">Manhattan</span>
+ <span class="n">Parkchester</span>        <span class="o">|</span> <span class="n">The</span> <span class="n">Bronx</span>
+ <span class="n">Soundview</span>          <span class="o">|</span> <span class="n">The</span> <span class="n">Bronx</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We used the <code class="docutils literal notranslate"><span class="pre">DISTINCT</span></code> keyword to remove duplicate values from our result set where there were more than one subway station in a neighborhood.</p>
+</div>
+</li>
+<li><p><strong>After 9/11, the ‘Battery Park’ neighborhood was off limits for several days. How many people had to be evacuated?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">Sum</span><span class="p">(</span><span class="n">popn_total</span><span class="p">)</span>
+<span class="k">FROM</span> <span class="n">nyc_neighborhoods</span> <span class="k">AS</span> <span class="n">n</span>
+<span class="k">JOIN</span> <span class="n">nyc_census_blocks</span> <span class="k">AS</span> <span class="k">c</span>
+<span class="k">ON</span> <span class="n">ST_Intersects</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">geom</span><span class="p">,</span> <span class="k">c</span><span class="p">.</span><span class="n">geom</span><span class="p">)</span>
+<span class="k">WHERE</span> <span class="n">n</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Battery Park&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">17153</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>What neighborhood has the highest population density (persons/km2)?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span>
+  <span class="n">n</span><span class="p">.</span><span class="n">name</span><span class="p">,</span>
+  <span class="k">Sum</span><span class="p">(</span><span class="k">c</span><span class="p">.</span><span class="n">popn_total</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">ST_Area</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">geom</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1000000</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span> <span class="k">AS</span> <span class="n">popn_per_sqkm</span>
+<span class="k">FROM</span> <span class="n">nyc_census_blocks</span> <span class="k">AS</span> <span class="k">c</span>
+<span class="k">JOIN</span> <span class="n">nyc_neighborhoods</span> <span class="k">AS</span> <span class="n">n</span>
+<span class="k">ON</span> <span class="n">ST_Intersects</span><span class="p">(</span><span class="k">c</span><span class="p">.</span><span class="n">geom</span><span class="p">,</span> <span class="n">n</span><span class="p">.</span><span class="n">geom</span><span class="p">)</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">n</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">n</span><span class="p">.</span><span class="n">geom</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">popn_per_sqkm</span> <span class="k">DESC</span> <span class="k">LIMIT</span> <span class="mi">2</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>      <span class="n">name</span>       <span class="o">|</span>  <span class="n">popn_per_sqkm</span>
+<span class="o">-------------------+------------------</span>
+ <span class="n">North</span> <span class="n">Sutton</span> <span class="n">Area</span> <span class="o">|</span> <span class="mf">68435.13283772678</span>
+ <span class="n">East</span> <span class="n">Village</span>      <span class="o">|</span> <span class="mf">50404.48341332535</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+            <li class="right" style="margin-right: 10px">
+              <a href="indexing.html" title="15. Spatial Indexing"
+                 accesskey="N">next</a></li>
+            <li class="right" >
+              <a href="joins.html" title="13. Spatial Joins"
+                 accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Introduction to PostGIS</a> &#187;</li>
+        <li><a href="#"><span class="section-number">14. </span>Spatial Joins Exercises</a></li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2012-2023, Paul Ramsey | Mark Leslie | PostGIS contributors.
+    <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative Commons License" style="border-width:0;vertical-align:text-bottom;" src="_static/img/cc-by-sa.png" /></a>
+    </div>
+  </body>
+</html>

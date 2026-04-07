@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>8. Simple SQL Exercises &#8212; Introduction to PostGIS</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/extra.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="9. Geometries" href="geometries.html" />
+    <link rel="prev" title="7. Simple SQL" href="simple_sql.html" />
+    
+
+  </head><body>
+    <div class="header">
+        <div class="wrap">
+            <div class="links">
+                <p>Edit this page on<br>
+                <a href="https://github.com/postgis/postgis-workshops/edit/master/postgis-intro/sources/en/simple_sql_exercises.rst" target="_blank">GitHub</a> or
+                <a href="https://gitlab.com/postgis/postgis-workshops/blob/master/postgis-intro/sources/en/simple_sql_exercises.rst" target="_blank">GitLab</a>.<br>
+                Help 
+                <a href="https://weblate.osgeo.org/projects/postgis-workshop/simple_sql_exercises/" target="_blank">translate</a> this page.</p>
+            </div>
+            <h1 class="logo"><a href="https://postgis.net"><img src="_static/img/postgis-logo.png" alt="PostGIS" /></a></h1>
+
+				      
+                      <!-- <div style="float:right;font-size:small">
+
+                      <b>Translate this Page with Weblate</b>&nbsp;&nbsp;<a href="https://weblate.osgeo.org/projects/postgis-workshop/simple_sql_exercises/" target="_blank" alt="Translate this page"><img src="https://weblate.osgeo.org/widgets/postgis-workshop/-/287x66-grey.png" style="vertical-align:middle;height:75px" alt="Translate this page" /></a>
+
+                      &nbsp;&nbsp;<b>Edit This Page On</b> 
+
+                      <a class="btn-scm gitlab" href="https://gitlab.com/postgis/postgis-workshops/blob/master/postgis-intro/sources/en/simple_sql_exercises.rst" target="_blank">Gitlab</a> 
+
+                      <a class="btn-scm github" href="https://github.com/postgis/postgis-workshops/edit/master/postgis-intro/sources/en/simple_sql_exercises.rst" target="_blank">Github</a>
+                      </div>
+                      -->
+			      
+            <h2 class="docstitle"><a href="index.html">Introduction to PostGIS</a> </h2>
+        </div>
+    </div>
+
+  
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="simple-sql-exercises">
+<span id="id1"></span><h1><span class="section-number">8. </span>Simple SQL Exercises<a class="headerlink" href="#simple-sql-exercises" title="Permalink to this headline">¶</a></h1>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">nyc_census_blocks</span></code> table, answer the following questions (don’t peek at the answers!).</p>
+<p>Here is some helpful information to get started.  Recall from the <a class="reference internal" href="about_data.html#about-data"><span class="std std-ref">About Our Data</span></a> section our <code class="docutils literal notranslate"><span class="pre">nyc_census_blocks</span></code> table definition.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 80%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>blkid</strong></p></td>
+<td><p>A 15-digit code that uniquely identifies every census <strong>block</strong>. (“360050001009000”)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>popn_total</strong></p></td>
+<td><p>Total number of people in the census block</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>popn_white</strong></p></td>
+<td><p>Number of people self-identifying as “white” in the block</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>popn_black</strong></p></td>
+<td><p>Number of people self-identifying as “black” in the block</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>popn_nativ</strong></p></td>
+<td><p>Number of people self-identifying as “native american” in the block</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>popn_asian</strong></p></td>
+<td><p>Number of people self-identifying as “asias” in the block</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>popn_other</strong></p></td>
+<td><p>Number of people self-identifying with other categories in the block</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>hous_total</strong></p></td>
+<td><p>Number of housing units in the block</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>hous_own</strong></p></td>
+<td><p>Number of owner-occupied housing units in the block</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>hous_rent</strong></p></td>
+<td><p>Number of renter-occupied housing units in the block</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>boroname</strong></p></td>
+<td><p>Name of the New York borough. Manhattan, The Bronx, Brooklyn, Staten Island, Queens</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>geom</strong></p></td>
+<td><p>Polygon boundary of the block</p></td>
+</tr>
+</tbody>
+</table>
+<p>And, here are some common SQL aggregation functions you might find useful:</p>
+<ul class="simple">
+<li><p>avg() - the average (mean) of the values in a set of records</p></li>
+<li><p>sum() - the sum of the values in a set of records</p></li>
+<li><p>count() - the number of records in a set of records</p></li>
+</ul>
+<p>Now the questions:</p>
+<ul>
+<li><p><strong>How many records are in the nyc_streets table?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">Count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span> <span class="n">nyc_streets</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">19091</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>How many streets in NYC start with ‘B’?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">Count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+  <span class="k">FROM</span> <span class="n">nyc_streets</span>
+  <span class="k">WHERE</span> <span class="n">name</span> <span class="k">LIKE</span> <span class="s1">&#39;B%&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1282</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>What is the population of the City of New York?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">Sum</span><span class="p">(</span><span class="n">popn_total</span><span class="p">)</span> <span class="k">AS</span> <span class="n">population</span>
+  <span class="k">FROM</span> <span class="n">nyc_census_blocks</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">8175032</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>What is this <code class="docutils literal notranslate"><span class="pre">AS</span></code>? You can give a table or a column another name by using an alias.  Aliases can make queries easier to both write and to read. So instead of our outputted column name as <code class="docutils literal notranslate"><span class="pre">sum</span></code> we write it <strong>AS</strong> the more readable <code class="docutils literal notranslate"><span class="pre">population</span></code>.</p>
+</div>
+</li>
+<li><p><strong>What is the population of the Bronx?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">Sum</span><span class="p">(</span><span class="n">popn_total</span><span class="p">)</span> <span class="k">AS</span> <span class="n">population</span>
+  <span class="k">FROM</span> <span class="n">nyc_census_blocks</span>
+  <span class="k">WHERE</span> <span class="n">boroname</span> <span class="o">=</span> <span class="s1">&#39;The Bronx&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1385108</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>How many “neighborhoods” are in each borough?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">boroname</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+  <span class="k">FROM</span> <span class="n">nyc_neighborhoods</span>
+  <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">boroname</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="n">boroname</span>    <span class="o">|</span> <span class="n">count</span>
+<span class="o">---------------+-------</span>
+ <span class="n">Queens</span>        <span class="o">|</span>    <span class="mi">30</span>
+ <span class="n">Brooklyn</span>      <span class="o">|</span>    <span class="mi">23</span>
+ <span class="n">Staten</span> <span class="n">Island</span> <span class="o">|</span>    <span class="mi">24</span>
+ <span class="n">The</span> <span class="n">Bronx</span>     <span class="o">|</span>    <span class="mi">24</span>
+ <span class="n">Manhattan</span>     <span class="o">|</span>    <span class="mi">28</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>For each borough, what percentage of the population is white?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span>
+  <span class="n">boroname</span><span class="p">,</span>
+  <span class="mi">100</span><span class="p">.</span><span class="mi">0</span> <span class="o">*</span> <span class="k">Sum</span><span class="p">(</span><span class="n">popn_white</span><span class="p">)</span><span class="o">/</span><span class="k">Sum</span><span class="p">(</span><span class="n">popn_total</span><span class="p">)</span> <span class="k">AS</span> <span class="n">white_pct</span>
+<span class="k">FROM</span> <span class="n">nyc_census_blocks</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">boroname</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="n">boroname</span>    <span class="o">|</span>    <span class="n">white_pct</span>
+<span class="o">---------------+------------------</span>
+ <span class="n">Brooklyn</span>      <span class="o">|</span> <span class="mf">42.8011737932687</span>
+ <span class="n">Manhattan</span>     <span class="o">|</span> <span class="mf">57.4493039480463</span>
+ <span class="n">The</span> <span class="n">Bronx</span>     <span class="o">|</span> <span class="mf">27.9037446899448</span>
+ <span class="n">Queens</span>        <span class="o">|</span>  <span class="mf">39.722077394591</span>
+ <span class="n">Staten</span> <span class="n">Island</span> <span class="o">|</span> <span class="mf">72.8942034860154</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="section" id="function-list">
+<h2><span class="section-number">8.1. </span>Function List<a class="headerlink" href="#function-list" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://www.postgresql.org/docs/current/static/functions-aggregate.html#FUNCTIONS-AGGREGATE-TABLE">avg(expression)</a>: PostgreSQL aggregate function that returns the average value of a numeric column.</p>
+<p><a class="reference external" href="http://www.postgresql.org/docs/current/static/functions-aggregate.html#FUNCTIONS-AGGREGATE-TABLE">count(expression)</a>: PostgreSQL aggregate function that returns the number of records in a set of records.</p>
+<p><a class="reference external" href="http://www.postgresql.org/docs/current/static/functions-aggregate.html#FUNCTIONS-AGGREGATE-TABLE">sum(expression)</a>: PostgreSQL aggregate function that returns the sum of records in a set of records.</p>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+            <li class="right" style="margin-right: 10px">
+              <a href="geometries.html" title="9. Geometries"
+                 accesskey="N">next</a></li>
+            <li class="right" >
+              <a href="simple_sql.html" title="7. Simple SQL"
+                 accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Introduction to PostGIS</a> &#187;</li>
+        <li><a href="#"><span class="section-number">8. </span>Simple SQL Exercises</a></li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2012-2023, Paul Ramsey | Mark Leslie | PostGIS contributors.
+    <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative Commons License" style="border-width:0;vertical-align:text-bottom;" src="_static/img/cc-by-sa.png" /></a>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>19. Geography Exercises &#8212; Introduction to PostGIS</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/extra.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="20. Geometry Constructing Functions" href="geometry_returning.html" />
+    <link rel="prev" title="18. Geography" href="geography.html" />
+    
+
+  </head><body>
+    <div class="header">
+        <div class="wrap">
+            <div class="links">
+                <p>Edit this page on<br>
+                <a href="https://github.com/postgis/postgis-workshops/edit/master/postgis-intro/sources/en/geography_exercises.rst" target="_blank">GitHub</a> or
+                <a href="https://gitlab.com/postgis/postgis-workshops/blob/master/postgis-intro/sources/en/geography_exercises.rst" target="_blank">GitLab</a>.<br>
+                Help 
+                <a href="https://weblate.osgeo.org/projects/postgis-workshop/geography_exercises/" target="_blank">translate</a> this page.</p>
+            </div>
+            <h1 class="logo"><a href="https://postgis.net"><img src="_static/img/postgis-logo.png" alt="PostGIS" /></a></h1>
+
+				      
+                      <!-- <div style="float:right;font-size:small">
+
+                      <b>Translate this Page with Weblate</b>&nbsp;&nbsp;<a href="https://weblate.osgeo.org/projects/postgis-workshop/geography_exercises/" target="_blank" alt="Translate this page"><img src="https://weblate.osgeo.org/widgets/postgis-workshop/-/287x66-grey.png" style="vertical-align:middle;height:75px" alt="Translate this page" /></a>
+
+                      &nbsp;&nbsp;<b>Edit This Page On</b> 
+
+                      <a class="btn-scm gitlab" href="https://gitlab.com/postgis/postgis-workshops/blob/master/postgis-intro/sources/en/geography_exercises.rst" target="_blank">Gitlab</a> 
+
+                      <a class="btn-scm github" href="https://github.com/postgis/postgis-workshops/edit/master/postgis-intro/sources/en/geography_exercises.rst" target="_blank">Github</a>
+                      </div>
+                      -->
+			      
+            <h2 class="docstitle"><a href="index.html">Introduction to PostGIS</a> </h2>
+        </div>
+    </div>
+
+  
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="geography-exercises">
+<span id="id1"></span><h1><span class="section-number">19. </span>Geography Exercises<a class="headerlink" href="#geography-exercises" title="Permalink to this headline">¶</a></h1>
+<p>Here’s a reminder of all the functions we have seen so far. They should be useful for the exercises!</p>
+<ul class="simple">
+<li><p><strong class="command">Sum(number)</strong> adds up all the numbers in the result set</p></li>
+<li><p><strong class="command">ST_GeogFromText(text)</strong> returns a geography</p></li>
+<li><p><strong class="command">ST_Distance(geography, geography)</strong> returns the distance between geographies</p></li>
+<li><p><strong class="command">ST_Transform(geometry, srid)</strong> returns geometry, in the new projection</p></li>
+<li><p><strong class="command">ST_Length(geography)</strong> returns the length of the line</p></li>
+<li><p><strong class="command">ST_Intersects(geometry, geometry)</strong> returns true if the objects are not disjoint in planar space</p></li>
+<li><p><strong class="command">ST_Intersects(geography, geography)</strong> returns true if the objects are not disjoint in spheroidal space</p></li>
+</ul>
+<p>Also remember the tables we have available:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_streets</span></code></p>
+<ul>
+<li><p>name, type, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_neighborhoods</span></code></p>
+<ul>
+<li><p>name, boroname, geom</p></li>
+</ul>
+</li>
+</ul>
+<div class="section" id="exercises">
+<h2><span class="section-number">19.1. </span>Exercises<a class="headerlink" href="#exercises" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p><strong>How far is New York from Seattle? What are the units of the answer?</strong></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>New York = <code class="docutils literal notranslate"><span class="pre">POINT(-74.0064</span> <span class="pre">40.7142)</span></code> and Seattle = <code class="docutils literal notranslate"><span class="pre">POINT(-122.3331</span> <span class="pre">47.6097)</span></code></p>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">ST_Distance</span><span class="p">(</span>
+  <span class="s1">&#39;POINT(-74.0064 40.7142)&#39;</span><span class="p">::</span><span class="n">geography</span><span class="p">,</span>
+  <span class="s1">&#39;POINT(-122.3331 47.6097)&#39;</span><span class="p">::</span><span class="n">geography</span>
+  <span class="p">);</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">3875538.57141352</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>What is the total length of all streets in New York, calculated on the spheroid?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">Sum</span><span class="p">(</span>
+  <span class="n">ST_Length</span><span class="p">(</span><span class="n">Geography</span><span class="p">(</span>
+    <span class="n">ST_Transform</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="mi">4326</span><span class="p">)</span>
+  <span class="p">)))</span>
+<span class="k">FROM</span> <span class="n">nyc_streets</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">10421999.666</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The length calculated in the planar “UTM Zone 18” projection is 10418904.717, 0.02% different. UTM is good at preserving area and distance, within the zone boundaries.</p>
+</div>
+</li>
+<li><p><strong>Does ‘POINT(1 2.0001)’ intersect with ‘POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))’ in geography? In geometry? Why the difference?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">ST_Intersects</span><span class="p">(</span>
+  <span class="s1">&#39;POINT(1 2.0001)&#39;</span><span class="p">::</span><span class="n">geography</span><span class="p">,</span>
+  <span class="s1">&#39;POLYGON((0 0,0 2,2 2,2 0,0 0))&#39;</span><span class="p">::</span><span class="n">geography</span>
+<span class="p">);</span>
+
+<span class="k">SELECT</span> <span class="n">ST_Intersects</span><span class="p">(</span>
+  <span class="s1">&#39;POINT(1 2.0001)&#39;</span><span class="p">::</span><span class="n">geometry</span><span class="p">,</span>
+  <span class="s1">&#39;POLYGON((0 0,0 2,2 2,2 0,0 0))&#39;</span><span class="p">::</span><span class="n">geometry</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">true</span> <span class="ow">and</span> <span class="n">false</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The upper edge of the square is a straight line in geometry, and passes <strong>below</strong> the point, so the square does not contain the point. The upper edge of the square is a great circle in geography, and passes <strong>above</strong> the point, so the square does contain the point.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+            <li class="right" style="margin-right: 10px">
+              <a href="geometry_returning.html" title="20. Geometry Constructing Functions"
+                 accesskey="N">next</a></li>
+            <li class="right" >
+              <a href="geography.html" title="18. Geography"
+                 accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Introduction to PostGIS</a> &#187;</li>
+        <li><a href="#"><span class="section-number">19. </span>Geography Exercises</a></li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2012-2023, Paul Ramsey | Mark Leslie | PostGIS contributors.
+    <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative Commons License" style="border-width:0;vertical-align:text-bottom;" src="_static/img/cc-by-sa.png" /></a>
+    </div>
+  </body>
+</html>

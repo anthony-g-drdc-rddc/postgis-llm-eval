@@ -1,0 +1,274 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>10. Geometry Exercises &#8212; Introduction to PostGIS</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/extra.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="11. Spatial Relationships" href="spatial_relationships.html" />
+    <link rel="prev" title="9. Geometries" href="geometries.html" />
+    
+
+  </head><body>
+    <div class="header">
+        <div class="wrap">
+            <div class="links">
+                <p>Edit this page on<br>
+                <a href="https://github.com/postgis/postgis-workshops/edit/master/postgis-intro/sources/en/geometries_exercises.rst" target="_blank">GitHub</a> or
+                <a href="https://gitlab.com/postgis/postgis-workshops/blob/master/postgis-intro/sources/en/geometries_exercises.rst" target="_blank">GitLab</a>.<br>
+                Help 
+                <a href="https://weblate.osgeo.org/projects/postgis-workshop/geometries_exercises/" target="_blank">translate</a> this page.</p>
+            </div>
+            <h1 class="logo"><a href="https://postgis.net"><img src="_static/img/postgis-logo.png" alt="PostGIS" /></a></h1>
+
+				      
+                      <!-- <div style="float:right;font-size:small">
+
+                      <b>Translate this Page with Weblate</b>&nbsp;&nbsp;<a href="https://weblate.osgeo.org/projects/postgis-workshop/geometries_exercises/" target="_blank" alt="Translate this page"><img src="https://weblate.osgeo.org/widgets/postgis-workshop/-/287x66-grey.png" style="vertical-align:middle;height:75px" alt="Translate this page" /></a>
+
+                      &nbsp;&nbsp;<b>Edit This Page On</b> 
+
+                      <a class="btn-scm gitlab" href="https://gitlab.com/postgis/postgis-workshops/blob/master/postgis-intro/sources/en/geometries_exercises.rst" target="_blank">Gitlab</a> 
+
+                      <a class="btn-scm github" href="https://github.com/postgis/postgis-workshops/edit/master/postgis-intro/sources/en/geometries_exercises.rst" target="_blank">Github</a>
+                      </div>
+                      -->
+			      
+            <h2 class="docstitle"><a href="index.html">Introduction to PostGIS</a> </h2>
+        </div>
+    </div>
+
+  
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="geometry-exercises">
+<span id="geometries-exercises"></span><h1><span class="section-number">10. </span>Geometry Exercises<a class="headerlink" href="#geometry-exercises" title="Permalink to this headline">¶</a></h1>
+<p>Here’s a reminder of all the functions we have seen so far. They should be useful for the exercises!</p>
+<ul class="simple">
+<li><p><strong class="command">sum(expression)</strong> aggregate to return a sum for a set of records</p></li>
+<li><p><strong class="command">count(expression)</strong> aggregate to return the size of a set of records</p></li>
+<li><p><strong class="command">ST_GeometryType(geometry)</strong> returns the type of the geometry</p></li>
+<li><p><strong class="command">ST_NDims(geometry)</strong> returns the number of dimensions of the geometry</p></li>
+<li><p><strong class="command">ST_SRID(geometry)</strong> returns the spatial reference identifier number of the geometry</p></li>
+<li><p><strong class="command">ST_X(point)</strong> returns the X ordinate</p></li>
+<li><p><strong class="command">ST_Y(point)</strong> returns the Y ordinate</p></li>
+<li><p><strong class="command">ST_Length(linestring)</strong> returns the length of the linestring</p></li>
+<li><p><strong class="command">ST_StartPoint(geometry)</strong> returns the first coordinate as a point</p></li>
+<li><p><strong class="command">ST_EndPoint(geometry)</strong> returns the last coordinate as a point</p></li>
+<li><p><strong class="command">ST_NPoints(geometry)</strong> returns the number of coordinates in the linestring</p></li>
+<li><p><strong class="command">ST_Area(geometry)</strong> returns the area of the polygons</p></li>
+<li><p><strong class="command">ST_NRings(geometry)</strong> returns the number of rings (usually 1, more if there are holes)</p></li>
+<li><p><strong class="command">ST_ExteriorRing(polygon)</strong> returns the outer ring as a linestring</p></li>
+<li><p><strong class="command">ST_InteriorRingN(polygon, integer)</strong> returns a specified interior ring as a linestring</p></li>
+<li><p><strong class="command">ST_Perimeter(geometry)</strong> returns the length of all the rings</p></li>
+<li><p><strong class="command">ST_NumGeometries(multi/geomcollection)</strong> returns the number of parts in the collection</p></li>
+<li><p><strong class="command">ST_GeometryN(geometry, integer)</strong> returns the specified part of the collection</p></li>
+<li><p><strong class="command">ST_GeomFromText(text)</strong> returns <code class="docutils literal notranslate"><span class="pre">geometry</span></code></p></li>
+<li><p><strong class="command">ST_AsText(geometry)</strong> returns WKT <code class="docutils literal notranslate"><span class="pre">text</span></code></p></li>
+<li><p><strong class="command">ST_AsEWKT(geometry)</strong> returns EWKT <code class="docutils literal notranslate"><span class="pre">text</span></code></p></li>
+<li><p><strong class="command">ST_GeomFromWKB(bytea)</strong> returns <code class="docutils literal notranslate"><span class="pre">geometry</span></code></p></li>
+<li><p><strong class="command">ST_AsBinary(geometry)</strong> returns WKB <code class="docutils literal notranslate"><span class="pre">bytea</span></code></p></li>
+<li><p><strong class="command">ST_AsEWKB(geometry)</strong> returns EWKB <code class="docutils literal notranslate"><span class="pre">bytea</span></code></p></li>
+<li><p><strong class="command">ST_GeomFromGML(text)</strong> returns <code class="docutils literal notranslate"><span class="pre">geometry</span></code></p></li>
+<li><p><strong class="command">ST_AsGML(geometry)</strong> returns GML <code class="docutils literal notranslate"><span class="pre">text</span></code></p></li>
+<li><p><strong class="command">ST_GeomFromKML(text)</strong> returns <code class="docutils literal notranslate"><span class="pre">geometry</span></code></p></li>
+<li><p><strong class="command">ST_AsKML(geometry)</strong> returns KML <code class="docutils literal notranslate"><span class="pre">text</span></code></p></li>
+<li><p><strong class="command">ST_AsGeoJSON(geometry)</strong> returns JSON <code class="docutils literal notranslate"><span class="pre">text</span></code></p></li>
+<li><p><strong class="command">ST_AsSVG(geometry)</strong> returns SVG <code class="docutils literal notranslate"><span class="pre">text</span></code></p></li>
+</ul>
+<p>Also remember the tables we have available:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_census_blocks</span></code></p>
+<ul>
+<li><p>blkid, popn_total, boroname, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_streets</span></code></p>
+<ul>
+<li><p>name, type, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_subway_stations</span></code></p>
+<ul>
+<li><p>name, geom</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nyc_neighborhoods</span></code></p>
+<ul>
+<li><p>name, boroname, geom</p></li>
+</ul>
+</li>
+</ul>
+<div class="section" id="exercises">
+<h2><span class="section-number">10.1. </span>Exercises<a class="headerlink" href="#exercises" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p><strong>What is the area of the ‘West Village’ neighborhood?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">ST_Area</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+  <span class="k">FROM</span> <span class="n">nyc_neighborhoods</span>
+  <span class="k">WHERE</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;West Village&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">1044614.5296486</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The area is given in square meters. To get an area in hectares, divide by 10000. To get an area in acres, divide by 4047.</p>
+</div>
+</li>
+<li><p><strong>What is the geometry type of ‘Pelham St’? The length?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span>
+   <span class="n">ST_GeometryType</span><span class="p">(</span><span class="n">geom</span><span class="p">),</span>
+   <span class="n">ST_Length</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+  <span class="k">FROM</span> <span class="n">nyc_streets</span>
+  <span class="k">WHERE</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Pelham St&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ST_MultiLineString</span>
+<span class="mf">50.323</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>What is the GeoJSON representation of the ‘Broad St’ subway station?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span>
+ <span class="n">ST_AsGeoJSON</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+<span class="k">FROM</span> <span class="n">nyc_subway_stations</span>
+<span class="k">WHERE</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Broad St&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span>
+ <span class="s2">&quot;crs&quot;</span><span class="p">:{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;name&quot;</span><span class="p">,</span><span class="s2">&quot;properties&quot;</span><span class="p">:{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;EPSG:26918&quot;</span><span class="p">}},</span>
+ <span class="s2">&quot;coordinates&quot;</span><span class="p">:[</span><span class="mf">583571.905921312</span><span class="p">,</span><span class="mf">4506714.341192182</span><span class="p">]}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>What is the total length of streets (in kilometers) in New York City?</strong> (Hint: The units of measurement of the spatial data are meters, there are 1000 meters in a kilometer.)</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">Sum</span><span class="p">(</span><span class="n">ST_Length</span><span class="p">(</span><span class="n">geom</span><span class="p">))</span> <span class="o">/</span> <span class="mi">1000</span>
+  <span class="k">FROM</span> <span class="n">nyc_streets</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">10418.9047172</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>What is the area of Manhattan in acres?</strong> (Hint: both <code class="docutils literal notranslate"><span class="pre">nyc_census_blocks</span></code> and <code class="docutils literal notranslate"><span class="pre">nyc_neighborhoods</span></code> have a <code class="docutils literal notranslate"><span class="pre">boroname</span></code> in them.)</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">Sum</span><span class="p">(</span><span class="n">ST_Area</span><span class="p">(</span><span class="n">geom</span><span class="p">))</span> <span class="o">/</span> <span class="mi">4047</span>
+  <span class="k">FROM</span> <span class="n">nyc_neighborhoods</span>
+  <span class="k">WHERE</span> <span class="n">boroname</span> <span class="o">=</span> <span class="s1">&#39;Manhattan&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">13965.3201224118</span>
+</pre></div>
+</div>
+<p>or…</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">Sum</span><span class="p">(</span><span class="n">ST_Area</span><span class="p">(</span><span class="n">geom</span><span class="p">))</span> <span class="o">/</span> <span class="mi">4047</span>
+  <span class="k">FROM</span> <span class="n">nyc_census_blocks</span>
+  <span class="k">WHERE</span> <span class="n">boroname</span> <span class="o">=</span> <span class="s1">&#39;Manhattan&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">14601.3987215548</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>What is the most westerly subway station?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">ST_X</span><span class="p">(</span><span class="n">geom</span><span class="p">),</span> <span class="n">name</span>
+  <span class="k">FROM</span> <span class="n">nyc_subway_stations</span>
+  <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">ST_X</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+  <span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Tottenville</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>How long is ‘Columbus Cir’ (aka Columbus Circle)?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">ST_Length</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+  <span class="k">FROM</span> <span class="n">nyc_streets</span>
+  <span class="k">WHERE</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Columbus Cir&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">308.34199</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>What is the length of streets in New York City, summarized by type?</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">type</span><span class="p">,</span> <span class="k">Sum</span><span class="p">(</span><span class="n">ST_Length</span><span class="p">(</span><span class="n">geom</span><span class="p">))</span> <span class="k">AS</span> <span class="k">length</span>
+<span class="k">FROM</span> <span class="n">nyc_streets</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="k">type</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="k">length</span> <span class="k">DESC</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>                       <span class="nb">type</span>                       <span class="o">|</span>      <span class="n">length</span>
+<span class="o">--------------------------------------------------+------------------</span>
+ <span class="n">residential</span>                                      <span class="o">|</span> <span class="mf">8629870.33786606</span>
+ <span class="n">motorway</span>                                         <span class="o">|</span> <span class="mf">403622.478126363</span>
+ <span class="n">tertiary</span>                                         <span class="o">|</span> <span class="mf">360394.879051303</span>
+ <span class="n">motorway_link</span>                                    <span class="o">|</span> <span class="mf">294261.419479668</span>
+ <span class="n">secondary</span>                                        <span class="o">|</span> <span class="mf">276264.303897926</span>
+ <span class="n">unclassified</span>                                     <span class="o">|</span> <span class="mf">166936.371604458</span>
+ <span class="n">primary</span>                                          <span class="o">|</span> <span class="mf">135034.233017947</span>
+ <span class="n">footway</span>                                          <span class="o">|</span> <span class="mf">71798.4878378096</span>
+ <span class="n">service</span>                                          <span class="o">|</span>  <span class="mf">28337.635038596</span>
+ <span class="n">trunk</span>                                            <span class="o">|</span> <span class="mf">20353.5819826076</span>
+ <span class="n">cycleway</span>                                         <span class="o">|</span> <span class="mf">8863.75144825929</span>
+ <span class="n">pedestrian</span>                                       <span class="o">|</span> <span class="mf">4867.05032825026</span>
+ <span class="n">construction</span>                                     <span class="o">|</span> <span class="mf">4803.08162103562</span>
+ <span class="n">residential</span><span class="p">;</span> <span class="n">motorway_link</span>                       <span class="o">|</span> <span class="mf">3661.57506293745</span>
+ <span class="n">trunk_link</span>                                       <span class="o">|</span> <span class="mf">3202.18981240201</span>
+ <span class="n">primary_link</span>                                     <span class="o">|</span> <span class="mf">2492.57457083536</span>
+ <span class="n">living_street</span>                                    <span class="o">|</span> <span class="mf">1894.63905457332</span>
+ <span class="n">primary</span><span class="p">;</span> <span class="n">residential</span><span class="p">;</span> <span class="n">motorway_link</span><span class="p">;</span> <span class="n">residential</span> <span class="o">|</span> <span class="mf">1367.76576941335</span>
+ <span class="n">undefined</span>                                        <span class="o">|</span>  <span class="mf">380.53861910346</span>
+ <span class="n">steps</span>                                            <span class="o">|</span> <span class="mf">282.745221342127</span>
+ <span class="n">motorway_link</span><span class="p">;</span> <span class="n">residential</span>                       <span class="o">|</span>  <span class="mf">215.07778911517</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ORDER</span> <span class="pre">BY</span> <span class="pre">length</span> <span class="pre">DESC</span></code> clause sorts the result by length in descending order. The result is that most prevalent types are first in the list.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+            <li class="right" style="margin-right: 10px">
+              <a href="spatial_relationships.html" title="11. Spatial Relationships"
+                 accesskey="N">next</a></li>
+            <li class="right" >
+              <a href="geometries.html" title="9. Geometries"
+                 accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Introduction to PostGIS</a> &#187;</li>
+        <li><a href="#"><span class="section-number">10. </span>Geometry Exercises</a></li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2012-2023, Paul Ramsey | Mark Leslie | PostGIS contributors.
+    <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative Commons License" style="border-width:0;vertical-align:text-bottom;" src="_static/img/cc-by-sa.png" /></a>
+    </div>
+  </body>
+</html>
